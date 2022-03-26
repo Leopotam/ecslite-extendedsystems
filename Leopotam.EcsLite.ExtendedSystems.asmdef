@@ -1,0 +1,16 @@
+{
+    "name": "Leopotam.EcsLite.ExtendedSystems",
+    "rootNamespace": "Leopotam.EcsLite.ExtendedSystems",
+    "references": [
+        "Leopotam.EcsLite"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

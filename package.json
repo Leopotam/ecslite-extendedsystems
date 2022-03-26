@@ -1,0 +1,19 @@
+{
+    "name": "com.leopotam.ecslite.extendedsystems",
+    "author": "Leopotam",
+    "displayName": "LeoECS Lite Extended systems",
+    "description": "LeoECS Lite Extended systems - Дополнительные системы, расширяющие функционал.",
+    "unity": "2020.3",
+    "version": "2022.3.22",
+    "keywords": [
+        "leoecslite",
+        "leoecs",
+        "ecs",
+        "performance"
+    ],
+    "dependencies": {},
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Leopotam/ecslite-extendedsystems.git"
+    }
+}
