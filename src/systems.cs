@@ -19,10 +19,11 @@ namespace Leopotam.EcsLite.ExtendedSystems {
     [Il2CppSetOption (Option.ArrayBoundsChecks, false)]
 #endif
     public static class Extensions {
+#if !LEOECSLITE_DI
         public static EcsSystems AddGroup (this EcsSystems systems, string groupName, bool defaultState, string eventWorldName, params IEcsSystem[] nestedSystems) {
             return systems.Add (new EcsGroupSystem (groupName, defaultState, eventWorldName, nestedSystems));
         }
-
+#endif
         public static EcsSystems DelHere<T> (this EcsSystems systems, string worldName = null) where T : struct {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
             if (systems.GetWorld (worldName) == null) { throw new System.Exception ($"Requested world \"{(string.IsNullOrEmpty (worldName) ? "[default]" : worldName)}\" not found."); }
@@ -55,13 +56,13 @@ namespace Leopotam.EcsLite.ExtendedSystems {
     [Il2CppSetOption (Option.NullChecks, false)]
     [Il2CppSetOption (Option.ArrayBoundsChecks, false)]
 #endif
-    public sealed class EcsGroupSystem :
+    public class EcsGroupSystem :
         IEcsPreInitSystem,
         IEcsInitSystem,
         IEcsRunSystem,
         IEcsDestroySystem,
         IEcsPostDestroySystem {
-        readonly IEcsSystem[] _allSystems;
+        protected readonly IEcsSystem[] _allSystems;
         readonly IEcsRunSystem[] _runSystems;
         readonly int _runSystemsCount;
         readonly string _eventsWorldName;

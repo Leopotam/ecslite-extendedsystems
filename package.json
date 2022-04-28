@@ -4,7 +4,7 @@
     "displayName": "LeoECS Lite Extended systems",
     "description": "LeoECS Lite Extended systems - Дополнительные системы, расширяющие функционал.",
     "unity": "2020.3",
-    "version": "2022.3.22",
+    "version": "2022.5.22-preview",
     "keywords": [
         "leoecslite",
         "leoecs",
