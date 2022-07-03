@@ -39,14 +39,14 @@
 ```c#
 // Эти системы будут вложены в группу с именем "Melee".
 class MeleeSystem1 : IEcsRunSystem {
-    public void Run (EcsSystems systems) { }
+    public void Run (IEcsSystems systems) { }
 }
 class MeleeSystem2 : IEcsRunSystem {
-    public void Run (EcsSystems systems) { }
+    public void Run (IEcsSystems systems) { }
 }
 
 class MeleeGroupEnableSystem : IEcsRunSystem {
-    public void Run (EcsSystems systems) {
+    public void Run (IEcsSystems systems) {
         // Мы можем включать и выключать группу "Melee" с помощью
         // отправки специального события "EcsGroupSystemState".
         var world = systems.GetWorld ();

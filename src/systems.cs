@@ -20,11 +20,11 @@ namespace Leopotam.EcsLite.ExtendedSystems {
 #endif
     public static class Extensions {
 #if !LEOECSLITE_DI
-        public static EcsSystems AddGroup (this EcsSystems systems, string groupName, bool defaultState, string eventWorldName, params IEcsSystem[] nestedSystems) {
+        public static IEcsSystems AddGroup (this IEcsSystems systems, string groupName, bool defaultState, string eventWorldName, params IEcsSystem[] nestedSystems) {
             return systems.Add (new EcsGroupSystem (groupName, defaultState, eventWorldName, nestedSystems));
         }
 #endif
-        public static EcsSystems DelHere<T> (this EcsSystems systems, string worldName = null) where T : struct {
+        public static IEcsSystems DelHere<T> (this IEcsSystems systems, string worldName = null) where T : struct {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
             if (systems.GetWorld (worldName) == null) { throw new System.Exception ($"Requested world \"{(string.IsNullOrEmpty (worldName) ? "[default]" : worldName)}\" not found."); }
 #endif
@@ -45,7 +45,7 @@ namespace Leopotam.EcsLite.ExtendedSystems {
             _pool = world.GetPool<T> ();
         }
 
-        public void Run (EcsSystems systems) {
+        public void Run (IEcsSystems systems) {
             foreach (var entity in _filter) {
                 _pool.Del (entity);
             }
@@ -62,7 +62,7 @@ namespace Leopotam.EcsLite.ExtendedSystems {
         IEcsRunSystem,
         IEcsDestroySystem,
         IEcsPostDestroySystem {
-        protected readonly IEcsSystem[] _allSystems;
+        readonly IEcsSystem[] _allSystems;
         readonly IEcsRunSystem[] _runSystems;
         readonly int _runSystemsCount;
         readonly string _eventsWorldName;
@@ -70,6 +70,10 @@ namespace Leopotam.EcsLite.ExtendedSystems {
         EcsFilter _filter;
         EcsPool<EcsGroupSystemState> _pool;
         bool _state;
+
+        protected IEcsSystem[] GetNestedSystems () {
+            return _allSystems;
+        }
 
         public EcsGroupSystem (string name, bool defaultState, string eventsWorldName, params IEcsSystem[] systems) {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
@@ -89,7 +93,7 @@ namespace Leopotam.EcsLite.ExtendedSystems {
             }
         }
 
-        public void PreInit (EcsSystems systems) {
+        public void PreInit (IEcsSystems systems) {
             var world = systems.GetWorld (_eventsWorldName);
             _pool = world.GetPool<EcsGroupSystemState> ();
             _filter = world.Filter<EcsGroupSystemState> ().End ();
@@ -97,26 +101,26 @@ namespace Leopotam.EcsLite.ExtendedSystems {
                 if (_allSystems[i] is IEcsPreInitSystem preInitSystem) {
                     preInitSystem.PreInit (systems);
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-                    var worldName = systems.CheckForLeakedEntities ();
+                    var worldName = EcsSystems.CheckForLeakedEntities (systems);
                     if (worldName != null) { throw new System.Exception ($"Empty entity detected in world \"{worldName}\" after {preInitSystem.GetType ().Name}.PreInit()."); }
 #endif
                 }
             }
         }
 
-        public void Init (EcsSystems systems) {
+        public void Init (IEcsSystems systems) {
             for (var i = 0; i < _allSystems.Length; i++) {
                 if (_allSystems[i] is IEcsInitSystem initSystem) {
                     initSystem.Init (systems);
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-                    var worldName = systems.CheckForLeakedEntities ();
+                    var worldName = EcsSystems.CheckForLeakedEntities (systems);
                     if (worldName != null) { throw new System.Exception ($"Empty entity detected in world \"{worldName}\" after {initSystem.GetType ().Name}.Init()."); }
 #endif
                 }
             }
         }
 
-        public void Run (EcsSystems systems) {
+        public void Run (IEcsSystems systems) {
             foreach (var entity in _filter) {
                 ref var evt = ref _pool.Get (entity);
                 if (evt.Name == _name) {
@@ -128,31 +132,31 @@ namespace Leopotam.EcsLite.ExtendedSystems {
                 for (var i = 0; i < _runSystemsCount; i++) {
                     _runSystems[i].Run (systems);
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-                    var worldName = systems.CheckForLeakedEntities ();
+                    var worldName = EcsSystems.CheckForLeakedEntities (systems);
                     if (worldName != null) { throw new System.Exception ($"Empty entity detected in world \"{worldName}\" after {_runSystems[i].GetType ().Name}.Run()."); }
 #endif
                 }
             }
         }
 
-        public void Destroy (EcsSystems systems) {
+        public void Destroy (IEcsSystems systems) {
             for (var i = _allSystems.Length - 1; i >= 0; i--) {
                 if (_allSystems[i] is IEcsDestroySystem destroySystem) {
                     destroySystem.Destroy (systems);
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-                    var worldName = systems.CheckForLeakedEntities ();
+                    var worldName = EcsSystems.CheckForLeakedEntities (systems);
                     if (worldName != null) { throw new System.Exception ($"Empty entity detected in world \"{worldName}\" after {destroySystem.GetType ().Name}.Destroy()."); }
 #endif
                 }
             }
         }
 
-        public void PostDestroy (EcsSystems systems) {
+        public void PostDestroy (IEcsSystems systems) {
             for (var i = _allSystems.Length - 1; i >= 0; i--) {
                 if (_allSystems[i] is IEcsPostDestroySystem postDestroySystem) {
                     postDestroySystem.PostDestroy (systems);
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-                    var worldName = systems.CheckForLeakedEntities ();
+                    var worldName = EcsSystems.CheckForLeakedEntities (systems);
                     if (worldName != null) { throw new System.Exception ($"Empty entity detected in world \"{worldName}\" after {postDestroySystem.GetType ().Name}.PostDestroy()."); }
 #endif
                 }

@@ -15,7 +15,7 @@ namespace Leopotam.EcsLite.ExtendedSystems {
     [Il2CppSetOption (Option.ArrayBoundsChecks, false)]
 #endif
     public static class Extensions {
-        public static EcsSystems AddGroup (this EcsSystems systems, string groupName, bool defaultState, string eventWorldName, params IEcsSystem[] nestedSystems) {
+        public static IEcsSystems AddGroup (this IEcsSystems systems, string groupName, bool defaultState, string eventWorldName, params IEcsSystem[] nestedSystems) {
             return systems.Add (new EcsGroupSystemWithDi (groupName, defaultState, eventWorldName, nestedSystems));
         }
     }
@@ -24,12 +24,11 @@ namespace Leopotam.EcsLite.ExtendedSystems {
     [Il2CppSetOption (Option.NullChecks, false)]
     [Il2CppSetOption (Option.ArrayBoundsChecks, false)]
 #endif
-    public class EcsGroupSystemWithDi : EcsGroupSystem, Di.IEcsInjectSystem {
+    public class EcsGroupSystemWithDi : EcsGroupSystem, IEcsInjectSystem {
         public EcsGroupSystemWithDi (string name, bool defaultState, string eventsWorldName, params IEcsSystem[] systems) : base (name, defaultState, eventsWorldName, systems) { }
 
-        public void Inject (EcsSystems systems, params object[] injects) {
-            for (int i = 0, iMax = _allSystems.Length; i < iMax; i++) {
-                var system = _allSystems[i];
+        public void Inject (IEcsSystems systems, params object[] injects) {
+            foreach (var system in GetNestedSystems ()) {
                 if (system is IEcsInjectSystem injectSystem) {
                     injectSystem.Inject (systems, injects);
                     continue;
