@@ -12,6 +12,7 @@
     * [EcsGroupSystem](#EcsGroupSystem)
     * [DelHere](#DelHere)
 * [Лицензия](#Лицензия)
+* [ЧаВо](#ЧаВо)
 
 # Социальные ресурсы
 [![discord](https://img.shields.io/discord/404358247621853185.svg?label=enter%20to%20discord%20server&style=for-the-badge&logo=discord)](https://discord.gg/5GZVde6)
@@ -38,14 +39,14 @@
 ```c#
 // Эти системы будут вложены в группу с именем "Melee".
 class MeleeSystem1 : IEcsRunSystem {
-    public void Run (EcsSystems systems) { }
+    public void Run (IEcsSystems systems) { }
 }
 class MeleeSystem2 : IEcsRunSystem {
-    public void Run (EcsSystems systems) { }
+    public void Run (IEcsSystems systems) { }
 }
 
 class MeleeGroupEnableSystem : IEcsRunSystem {
-    public void Run (EcsSystems systems) {
+    public void Run (IEcsSystems systems) {
         // Мы можем включать и выключать группу "Melee" с помощью
         // отправки специального события "EcsGroupSystemState".
         var world = systems.GetWorld ();
@@ -92,3 +93,9 @@ systems
 
 В случаях лицензирования по условиям MIT-Red не стоит расчитывать на
 персональные консультации или какие-либо гарантии.
+
+# ЧаВо
+
+### Я хочу воспользоваться функционалом инъекции зависимостей из `ecslite-di`, но поля систем, вложенных в именованные группы, не инициализируются должным образом. Как это исправить?
+
+Для этого достаточно указать директиву компилятора `LEOECSLITE_DI`.
