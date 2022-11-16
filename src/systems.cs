@@ -71,7 +71,7 @@ namespace Leopotam.EcsLite.ExtendedSystems {
         EcsPool<EcsGroupSystemState> _pool;
         bool _state;
 
-        protected IEcsSystem[] GetNestedSystems () {
+        public IEcsSystem[] GetNestedSystems () {
             return _allSystems;
         }
 
