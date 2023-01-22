@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 // The Proprietary or MIT-Red License
-// Copyright (c) 2012-2022 Leopotam <leopotam@yandex.ru>
+// Copyright (c) 2012-2023 Leopotam <leopotam@yandex.ru>
 // ----------------------------------------------------------------------------
 
 #if ENABLE_IL2CPP
@@ -60,11 +60,14 @@ namespace Leopotam.EcsLite.ExtendedSystems {
         IEcsPreInitSystem,
         IEcsInitSystem,
         IEcsRunSystem,
+        IEcsPostRunSystem,
         IEcsDestroySystem,
         IEcsPostDestroySystem {
         readonly IEcsSystem[] _allSystems;
         readonly IEcsRunSystem[] _runSystems;
         readonly int _runSystemsCount;
+        readonly IEcsPostRunSystem[] _postRunSystems;
+        readonly int _postRunSystemsCount;
         readonly string _eventsWorldName;
         readonly string _name;
         EcsFilter _filter;
@@ -86,9 +89,13 @@ namespace Leopotam.EcsLite.ExtendedSystems {
             _allSystems = systems;
             _runSystemsCount = 0;
             _runSystems = new IEcsRunSystem[_allSystems.Length];
+            _postRunSystems = new IEcsPostRunSystem[_allSystems.Length];
             for (var i = 0; i < _allSystems.Length; i++) {
                 if (_allSystems[i] is IEcsRunSystem runSystem) {
                     _runSystems[_runSystemsCount++] = runSystem;
+                }
+                if (_allSystems[i] is IEcsPostRunSystem postRunSystem) {
+                    _postRunSystems[_postRunSystemsCount++] = postRunSystem;
                 }
             }
         }
@@ -134,6 +141,25 @@ namespace Leopotam.EcsLite.ExtendedSystems {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
                     var worldName = EcsSystems.CheckForLeakedEntities (systems);
                     if (worldName != null) { throw new System.Exception ($"Empty entity detected in world \"{worldName}\" after {_runSystems[i].GetType ().Name}.Run()."); }
+#endif
+                }
+            }
+        }
+
+        public void PostRun (IEcsSystems systems) {
+            foreach (var entity in _filter) {
+                ref var evt = ref _pool.Get (entity);
+                if (evt.Name == _name) {
+                    _state = evt.State;
+                    _pool.Del (entity);
+                }
+            }
+            if (_state) {
+                for (var i = 0; i < _postRunSystemsCount; i++) {
+                    _postRunSystems[i].PostRun (systems);
+#if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
+                    var worldName = EcsSystems.CheckForLeakedEntities (systems);
+                    if (worldName != null) { throw new System.Exception ($"Empty entity detected in world \"{worldName}\" after {_postRunSystems[i].GetType ().Name}.PostRun()."); }
 #endif
                 }
             }
