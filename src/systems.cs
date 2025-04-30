@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 // The MIT-Red License
-// Copyright (c) 2012-2024 Leopotam <leopotam@yandex.ru>
+// Copyright (c) 2012-2025 Leopotam <leopotam@yandex.ru>
 // ----------------------------------------------------------------------------
 
 #if ENABLE_IL2CPP
